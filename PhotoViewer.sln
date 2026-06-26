@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoViewer.UI", "PhotoViewer.UI\PhotoViewer.UI.csproj", "{7B7EFDE7-55D3-4D66-A50C-D12B9AC9ED38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoViewer.Core", "PhotoViewer.Core\PhotoViewer.Core.csproj", "{A27A8D8F-7623-42F8-BAFE-209C21CAD62F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoViewer.Services", "PhotoViewer.Services\PhotoViewer.Services.csproj", "{9AB3DF3F-0027-4852-941B-AC6E94267657}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoViewer.Database", "PhotoViewer.Database\PhotoViewer.Database.csproj", "{1AB90F4A-A349-4C8E-B22A-BFF502AEC613}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoViewer.FaceRecognition", "PhotoViewer.FaceRecognition\PhotoViewer.FaceRecognition.csproj", "{0A605A6A-EF56-4859-86D0-D30961747D1D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7B7EFDE7-55D3-4D66-A50C-D12B9AC9ED38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B7EFDE7-55D3-4D66-A50C-D12B9AC9ED38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B7EFDE7-55D3-4D66-A50C-D12B9AC9ED38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B7EFDE7-55D3-4D66-A50C-D12B9AC9ED38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A27A8D8F-7623-42F8-BAFE-209C21CAD62F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A27A8D8F-7623-42F8-BAFE-209C21CAD62F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A27A8D8F-7623-42F8-BAFE-209C21CAD62F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A27A8D8F-7623-42F8-BAFE-209C21CAD62F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AB3DF3F-0027-4852-941B-AC6E94267657}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AB3DF3F-0027-4852-941B-AC6E94267657}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AB3DF3F-0027-4852-941B-AC6E94267657}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AB3DF3F-0027-4852-941B-AC6E94267657}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AB90F4A-A349-4C8E-B22A-BFF502AEC613}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AB90F4A-A349-4C8E-B22A-BFF502AEC613}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AB90F4A-A349-4C8E-B22A-BFF502AEC613}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AB90F4A-A349-4C8E-B22A-BFF502AEC613}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A605A6A-EF56-4859-86D0-D30961747D1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A605A6A-EF56-4859-86D0-D30961747D1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A605A6A-EF56-4859-86D0-D30961747D1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A605A6A-EF56-4859-86D0-D30961747D1D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
