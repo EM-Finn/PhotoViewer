@@ -9,6 +9,7 @@ using PhotoViewer.UI.Helpers;
 using PhotoViewer.Services.Navigation;
 using PhotoViewer.Services.Search;
 using PhotoViewer.Services.State;
+using System.Windows.Media;
 
 namespace PhotoViewer.UI.ViewModels;
 
@@ -19,6 +20,14 @@ public partial class MainViewModel : ObservableObject
 
     private readonly AppStateService _state;
     private readonly SearchService _searchService;
+
+    private CancellationTokenSource _loadCts;
+    private ImageSource _currentPhotoImageSource;
+    public ImageSource CurrentPhotoImageSource
+    {
+        get => _currentPhotoImageSource;
+        set { _currentPhotoImageSource = value; /* OnPropertyChanged */ }
+    }
 
     public MainViewModel(PhotoIndexingService indexingService, NavigationService navigationService, AppStateService state, SearchService searchService)
     {
@@ -95,7 +104,7 @@ public partial class MainViewModel : ObservableObject
 
     partial void OnSelectedPhotoChanged(Photo? value)
     {
-        LoadCurrentPhoto();
+        LoadCurrentPhotoAsync();
     }
 
     partial void OnSearchTextChanged(string value)
@@ -103,14 +112,35 @@ public partial class MainViewModel : ObservableObject
         ApplySearch();
     }
 
-    private void LoadCurrentPhoto()
+    private async Task LoadCurrentPhotoAsync()
     {
-        if (selectedPhoto == null)
-            return;
+        _loadCts?.Cancel();
+        _loadCts = new CancellationTokenSource();
+        var ct = _loadCts.Token;
 
-        CurrentPhoto = ImageHelper.LoadBitmap(
-            selectedPhoto.FilePath,
-            1600);
+        // отвязываем старое изображение прежде чем начать новую загрузку
+        CurrentPhotoImageSource = null;
+
+        try
+        {
+            var path = SelectedPhoto?.FilePath;
+            if (string.IsNullOrEmpty(path)) return;
+
+            // загружаем в фоновой задаче
+            var bitmap = await Task.Run(() => ImageHelper.LoadBitmap(path, 1600), ct);
+            if (ct.IsCancellationRequested) return;
+
+            CurrentPhotoImageSource = bitmap;
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex) { /* лог */ }
+    }
+
+    public void Dispose()
+    {
+        _loadCts?.Cancel();
+        _loadCts?.Dispose();
+        // отписать все события и очистить кэш, если VM владеет им
     }
 
     [RelayCommand]

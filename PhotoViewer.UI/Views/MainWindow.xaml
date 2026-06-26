@@ -18,32 +18,25 @@
             <ColumnDefinition Width="320"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" Grid.Column="3"
-        Background="#202020"
-        Padding="12">
-
+        <!-- Верхняя панель поиска (перенёс в колонку 2) -->
+        <Border Grid.Row="0" Grid.Column="2"
+                Background="#202020"
+                Padding="12">
             <DockPanel>
-
                 <TextBox x:Name="SearchBox"
-                    Width="320" Height="36"
-                 VerticalContentAlignment="Center"
-                 FontSize="16"
-                 Text="{Binding SearchText,
-                                UpdateSourceTrigger=PropertyChanged}" />
-
+                         Width="320" Height="36"
+                         VerticalContentAlignment="Center"
+                         FontSize="16"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
             </DockPanel>
-
         </Border>
 
         <!-- Sidebar -->
-
         <Border Grid.Column="0"
                 Grid.Row="1"
                 Background="#202020"
                 Padding="12">
-
             <StackPanel>
-
                 <Button Content="Open Folder"
                         Height="40"
                         Command="{Binding OpenFolderCommand}" />
@@ -51,140 +44,88 @@
                 <ListBox Margin="0,12,0,0"
                          ItemsSource="{Binding Groups}"
                          SelectedItem="{Binding SelectedGroup}">
-
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-
-                            <TextBlock Text="{Binding Name}"
-                                       FontSize="16"/>
-
+                            <TextBlock Text="{Binding Name}" FontSize="16"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-
                 </ListBox>
-
             </StackPanel>
-
         </Border>
 
         <!-- Main Content -->
-
         <Grid Grid.Column="1" Grid.Row="1">
-
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="140" />
             </Grid.RowDefinitions>
 
             <!-- Main Photo -->
-
-            <Border Background="#111111">
-
-                <Image Source="{Binding CurrentPhoto}"
-               Stretch="Uniform" />
-
+            <Border Background="#111111" Padding="8">
+                <!-- Теперь привязка к SelectedPhoto.FilePath через FullImageConverter -->
+                <Image Source="{Binding SelectedPhoto.FilePath, Converter={StaticResource FullImageConverter}}"
+                       Stretch="Uniform" />
             </Border>
 
             <!-- Thumbnails -->
-
             <Border Grid.Row="1"
-            Background="#1A1A1A"
-            Padding="12">
-
+                    Background="#1A1A1A"
+                    Padding="12">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                      VerticalScrollBarVisibility="Auto">
-
+                              VerticalScrollBarVisibility="Disabled"
+                              CanContentScroll="True">
                     <ListBox ItemsSource="{Binding SelectedGroup.Photos}"
-                     SelectedItem="{Binding SelectedPhoto}"
-                     VirtualizingPanel.IsVirtualizing="True"
-                     VirtualizingPanel.VirtualizationMode="Recycling"
-                     ScrollViewer.CanContentScroll="True"
-                     ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                     Background="Transparent"
-                     BorderThickness="0">
-
+                             SelectedItem="{Binding SelectedPhoto}"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"
+                             ScrollViewer.CanContentScroll="True"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             HorizontalContentAlignment="Stretch">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
-
-                                <StackPanel Orientation="Horizontal"/>
-
+                                <!-- ВАЖНО: VirtualizingStackPanel для виртуализации -->
+                                <VirtualizingStackPanel Orientation="Horizontal" IsVirtualizing="True" VirtualizationMode="Recycling"/>
                             </ItemsPanelTemplate>
                         </ListBox.ItemsPanel>
 
                         <ListBox.ItemTemplate>
-
                             <DataTemplate>
-
                                 <Border Margin="4">
-
+                                    <!-- привязываем к FilePath и конвертеру миниатюр -->
                                     <Image Width="120"
-                                   Height="120"
-                                   Stretch="UniformToFill"
-                                   Source="{Binding FilePath}" />
-
+                                           Height="120"
+                                           Stretch="UniformToFill"
+                                           Source="{Binding FilePath, Converter={StaticResource ThumbnailConverter}, ConverterParameter=180}" />
                                 </Border>
-
                             </DataTemplate>
-
                         </ListBox.ItemTemplate>
-
                     </ListBox>
-
                 </ScrollViewer>
-
             </Border>
-
         </Grid>
 
+        <!-- Right panel -->
         <Border Grid.Column="2" Grid.Row="1"
-        Background="#202020"
-        Padding="12">
-
+                Background="#202020"
+                Padding="12">
             <StackPanel>
-
-                <TextBlock Text="Selected Photo"
-                   FontSize="18"
-                   FontWeight="SemiBold"/>
-
-                <TextBlock Margin="0,16,0,4"
-                   Text="Group Name"/>
-
-                <TextBox Text="{Binding ManualGroupName,
-                                UpdateSourceTrigger=PropertyChanged}"/>
-
-                <Button Margin="0,12,0,0"
-                Height="40"
-                Content="Apply Group"
-                Command="{Binding ApplyManualGroupCommand}"/>
-
+                <TextBlock Text="Selected Photo" FontSize="18" FontWeight="SemiBold"/>
+                <TextBlock Margin="0,16,0,4" Text="Group Name"/>
+                <TextBox Text="{Binding ManualGroupName, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Margin="0,12,0,0" Height="40" Content="Apply Group" Command="{Binding ApplyManualGroupCommand}"/>
                 <Separator Margin="0,20,0,20"/>
-
-                <TextBlock Text="Detected Properties"
-                   FontWeight="SemiBold"/>
-
-                <ItemsControl Margin="0,12,0,0"
-                      ItemsSource="{Binding SelectedPhoto.ParsedName.Properties}">
-
+                <TextBlock Text="Detected Properties" FontWeight="SemiBold"/>
+                <ItemsControl Margin="0,12,0,0" ItemsSource="{Binding SelectedPhoto.ParsedName.Properties}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-
-                            <Border Margin="0,4,0,0"
-                            Padding="8"
-                            Background="#2A2A2A"
-                            CornerRadius="8">
-
+                            <Border Margin="0,4,0,0" Padding="8" Background="#2A2A2A" CornerRadius="8">
                                 <TextBlock Text="{Binding}"/>
-
                             </Border>
-
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
-
                 </ItemsControl>
-
             </StackPanel>
-
         </Border>
     </Grid>
-
 </Window>

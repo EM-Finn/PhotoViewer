@@ -1,46 +1,81 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Windows.Media.Imaging;
+using Microsoft.Extensions.Caching.Memory;
+using PhotoViewer.UI.Helpers;
 
-namespace PhotoViewer.Services.Caching;
-
-public class ThumbnailCacheService
+namespace PhotoViewer.UI.Caching
 {
-    private readonly ConcurrentDictionary<string, BitmapImage>
-        _cache = new();
-
-    public BitmapImage GetThumbnail(
-        string path,
-        int decodeWidth = 256)
+    // Класс использует Microsoft.Extensions.Caching.Memory.MemoryCache.
+    // Для возможности очистки/итерации мы отдельно храним ключи в ConcurrentDictionary.
+    public class ThumbnailCacheService : IDisposable
     {
-        if (_cache.TryGetValue(path, out var cached))
-            return cached;
+        private readonly MemoryCache _cache;
+        private readonly ConcurrentDictionary<string, byte> _keys;
+        private readonly MemoryCacheEntryOptions _defaultOptions;
+        private bool _disposed;
 
-        var bitmap = new BitmapImage();
+        public static ThumbnailCacheService Instance { get; } = new ThumbnailCacheService();
 
-        bitmap.BeginInit();
+        public ThumbnailCacheService()
+        {
+            _cache = new MemoryCache(new MemoryCacheOptions());
+            _keys = new ConcurrentDictionary<string, byte>();
+            _defaultOptions = new MemoryCacheEntryOptions
+            {
+                SlidingExpiration = TimeSpan.FromMinutes(30)
+            };
+        }
 
-        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+        // Возвращает миниатюру или null при ошибке
+        public BitmapImage GetThumbnail(string path, int decodeWidth = 256)
+        {
+            if (string.IsNullOrEmpty(path))
+                return null;
 
-        bitmap.DecodePixelWidth = decodeWidth;
+            var key = $"{path}|{decodeWidth}";
 
-        bitmap.UriSource = new Uri(path);
+            if (_cache.TryGetValue(key, out BitmapImage cached))
+                return cached;
 
-        bitmap.EndInit();
+            BitmapImage thumbnail;
+            try
+            {
+                thumbnail = ImageHelper.LoadBitmap(path, decodeWidth);
+            }
+            catch
+            {
+                return null;
+            }
 
-        bitmap.Freeze();
+            _cache.Set(key, thumbnail, _defaultOptions);
+            _keys.TryAdd(key, 0);
+            return thumbnail;
+        }
 
-        _cache[path] = bitmap;
+        // Удалить конкретную миниатюру
+        public void Remove(string path, int decodeWidth = 256)
+        {
+            var key = $"{path}|{decodeWidth}";
+            _cache.Remove(key);
+            _keys.TryRemove(key, out _);
+        }
 
-        return bitmap;
-    }
+        // Очистить кэш
+        public void Clear()
+        {
+            foreach (var key in _keys.Keys)
+            {
+                _cache.Remove(key);
+                _keys.TryRemove(key, out _);
+            }
+        }
 
-    public void Clear()
-    {
-        _cache.Clear();
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _cache.Dispose();
+            _disposed = true;
+        }
     }
 }
