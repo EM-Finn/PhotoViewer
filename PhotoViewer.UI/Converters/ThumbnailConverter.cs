@@ -3,16 +3,17 @@ using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 using PhotoViewer.UI.Caching;
+using System.Diagnostics;
 
 namespace PhotoViewer.UI.Converters
 {
     public class ThumbnailConverter : IValueConverter
     {
-        // parameter: optional decodeWidth (int)
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var path = value as string;
-            if (string.IsNullOrEmpty(path)) return null;
+            if (string.IsNullOrEmpty(path))
+                return null;
 
             int decodeWidth = 256;
             if (parameter != null && int.TryParse(parameter.ToString(), out var w))
@@ -20,10 +21,14 @@ namespace PhotoViewer.UI.Converters
 
             try
             {
-                return ThumbnailCacheService.Instance.GetThumbnail(path, decodeWidth);
+                var result = ThumbnailCacheService.Instance.GetThumbnail(path, decodeWidth);
+                if (result == null)
+                    Debug.WriteLine($"[ThumbnailConverter] GetThumbnail returned null for: {path}");
+                return result;
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.WriteLine($"[ThumbnailConverter] Error: {ex.Message} for path: {path}");
                 return null;
             }
         }

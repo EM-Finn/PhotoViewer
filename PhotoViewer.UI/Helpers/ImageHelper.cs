@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Media.Imaging;
+using System.Diagnostics;
 
 namespace PhotoViewer.UI.Helpers
 {
@@ -8,23 +9,40 @@ namespace PhotoViewer.UI.Helpers
     {
         public static BitmapImage LoadBitmap(string path, int decodeWidth = 0)
         {
+            Debug.WriteLine($"[ImageHelper] LoadBitmap called with path: {path}, decodeWidth: {decodeWidth}");
+
             if (string.IsNullOrEmpty(path))
                 throw new ArgumentNullException(nameof(path));
 
-            var bitmap = new BitmapImage();
-
-            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            if (!File.Exists(path))
             {
-                bitmap.BeginInit();
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                if (decodeWidth > 0) bitmap.DecodePixelWidth = decodeWidth;
-                bitmap.StreamSource = fs;
-                bitmap.EndInit();
-                bitmap.Freeze();
+                Debug.WriteLine($"[ImageHelper] File does not exist: {path}");
+                throw new FileNotFoundException($"File not found: {path}");
             }
 
-            return bitmap;
+            var bitmap = new BitmapImage();
+
+            try
+            {
+                using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    bitmap.BeginInit();
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                    if (decodeWidth > 0) bitmap.DecodePixelWidth = decodeWidth;
+                    bitmap.StreamSource = fs;
+                    bitmap.EndInit();
+                    bitmap.Freeze();
+                }
+
+                Debug.WriteLine($"[ImageHelper] ✓ Successfully loaded image, size: {bitmap.PixelWidth}x{bitmap.PixelHeight}");
+                return bitmap;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ImageHelper] ✗ Error loading bitmap: {ex.Message}");
+                throw;
+            }
         }
     }
 }

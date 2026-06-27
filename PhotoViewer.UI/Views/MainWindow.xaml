@@ -62,8 +62,7 @@
 
             <!-- Main Photo -->
             <Border Background="#111111" Padding="8">
-                <!-- Теперь привязка к SelectedPhoto.FilePath через FullImageConverter -->
-                <Image Source="{Binding SelectedPhoto.FilePath, Converter={StaticResource FullImageConverter}}"
+                <Image Source="{Binding CurrentPhotoImageSource}"
                        Stretch="Uniform" />
             </Border>
 

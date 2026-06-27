@@ -10,6 +10,7 @@ using PhotoViewer.Services.Navigation;
 using PhotoViewer.Services.Search;
 using PhotoViewer.Services.State;
 using System.Windows.Media;
+using System.Diagnostics;
 
 namespace PhotoViewer.UI.ViewModels;
 
@@ -63,11 +64,6 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string searchText = string.Empty;
 
-    public MainViewModel(PhotoIndexingService indexingService)
-    {
-        _indexingService = indexingService;
-    }
-
     [RelayCommand]
     private async Task OpenFolder()
     {
@@ -118,22 +114,33 @@ public partial class MainViewModel : ObservableObject
         _loadCts = new CancellationTokenSource();
         var ct = _loadCts.Token;
 
-        // отвязываем старое изображение прежде чем начать новую загрузку
+        // Очищаем перед новой загрузкой
         CurrentPhotoImageSource = null;
 
         try
         {
             var path = SelectedPhoto?.FilePath;
-            if (string.IsNullOrEmpty(path)) return;
+            if (string.IsNullOrEmpty(path))
+            {
+                Debug.WriteLine($"[MainViewModel] No photo selected");
+                return;
+            }
 
-            // загружаем в фоновой задаче
-            var bitmap = await Task.Run(() => ImageHelper.LoadBitmap(path, 1600), ct);
+            Debug.WriteLine($"[MainViewModel] Loading photo: {path}");
+
+            // Загружаем в фоне
+            var bitmap = await Task.Run(() => ImageHelper.LoadBitmap(path, 0), ct); // 0 = полное разрешение
+
             if (ct.IsCancellationRequested) return;
 
+            Debug.WriteLine($"[MainViewModel] Photo loaded successfully");
             CurrentPhotoImageSource = bitmap;
         }
         catch (OperationCanceledException) { }
-        catch (Exception ex) { /* лог */ }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[MainViewModel] Error loading photo: {ex.Message}");
+        }
     }
 
     public void Dispose()

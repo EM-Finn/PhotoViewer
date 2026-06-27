@@ -22,23 +22,22 @@ public partial class App : Application
             .CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
-                services.AddSingleton<PhotoIndexingService>();
-
-                services.AddSingleton<MainViewModel>();
-
-                services.AddSingleton<MainWindow>();
-
+                // Зависимости ПЕРВЫМИ
                 services.AddSingleton<FilenameParserService>();
-
                 services.AddSingleton<GroupingService>();
-
+                services.AddSingleton<NavigationService>();
+                services.AddSingleton<AppStateService>();
+                services.AddSingleton<SearchService>();
                 services.AddSingleton<ThumbnailCacheService>();
 
-                services.AddSingleton<NavigationService>();
+                // Затем сервисы, которые зависят от выше указанных
+                services.AddSingleton<PhotoIndexingService>();
 
-                services.AddSingleton<AppStateService>();
+                // Затем ViewModel
+                services.AddSingleton<MainViewModel>();
 
-                services.AddSingleton<SearchService>();
+                // И наконец MainWindow
+                services.AddSingleton<MainWindow>();
             })
             .Build();
     }
