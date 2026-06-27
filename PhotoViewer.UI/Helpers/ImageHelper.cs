@@ -28,7 +28,8 @@ namespace PhotoViewer.UI.Helpers
                 {
                     bitmap.BeginInit();
                     bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                    // НЕ используем IgnoreImageCache с локальными файлами - это вызывает ошибку
+                    // bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
                     if (decodeWidth > 0) bitmap.DecodePixelWidth = decodeWidth;
                     bitmap.StreamSource = fs;
                     bitmap.EndInit();
