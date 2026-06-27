@@ -1,34 +1,26 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Windows.Media.Imaging;
 using Microsoft.Extensions.Caching.Memory;
 using PhotoViewer.UI.Helpers;
+using System.Diagnostics;
 
 namespace PhotoViewer.UI.Caching
 {
-    // Класс использует Microsoft.Extensions.Caching.Memory.MemoryCache.
-    // Для возможности очистки/итерации мы отдельно храним ключи в ConcurrentDictionary.
+    // Кэш миниатюр
     public class ThumbnailCacheService : IDisposable
     {
         private readonly MemoryCache _cache;
         private readonly ConcurrentDictionary<string, byte> _keys;
-        private readonly MemoryCacheEntryOptions _defaultOptions;
         private bool _disposed;
 
         public static ThumbnailCacheService Instance { get; } = new ThumbnailCacheService();
 
         public ThumbnailCacheService()
         {
-            _cache = new MemoryCache(new MemoryCacheOptions
-            {
-                SizeLimit = 100_000_000 // 100 МБ максимум для миниатюр
-            });
+            // Простой кэш БЕЗ SizeLimit - избегаем проблем с null key
+            _cache = new MemoryCache(new MemoryCacheOptions());
             _keys = new ConcurrentDictionary<string, byte>();
-            _defaultOptions = new MemoryCacheEntryOptions
-            {
-                SlidingExpiration = TimeSpan.FromMinutes(10), // 10 минут
-                Size = 100_000 // миниатюра примерно 100 КБ
-            };
         }
 
         // Возвращает миниатюру или null при ошибке
@@ -40,20 +32,32 @@ namespace PhotoViewer.UI.Caching
             var key = $"{path}|{decodeWidth}";
 
             if (_cache.TryGetValue(key, out BitmapImage cached))
+            {
+                Debug.WriteLine($"[ThumbnailCacheService] ✓ Cache hit for: {path}");
                 return cached;
+            }
 
             BitmapImage thumbnail;
             try
             {
                 thumbnail = ImageHelper.LoadBitmap(path, decodeWidth);
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.WriteLine($"[ThumbnailCacheService] Error loading thumbnail: {ex.Message}");
                 return null;
             }
 
-            _cache.Set(key, thumbnail, _defaultOptions);
+            // Добавляем в кэш с временем жизни 10 минут
+            var cacheOptions = new MemoryCacheEntryOptions
+            {
+                SlidingExpiration = TimeSpan.FromMinutes(10)
+            };
+            
+            _cache.Set(key, thumbnail, cacheOptions);
             _keys.TryAdd(key, 0);
+            
+            Debug.WriteLine($"[ThumbnailCacheService] ✓ Cached thumbnail: {path}");
             return thumbnail;
         }
 
@@ -65,7 +69,7 @@ namespace PhotoViewer.UI.Caching
             _keys.TryRemove(key, out _);
         }
 
-        // Очистить кэш
+        // Очистить весь кэш
         public void Clear()
         {
             foreach (var key in _keys.Keys)
@@ -73,12 +77,14 @@ namespace PhotoViewer.UI.Caching
                 _cache.Remove(key);
                 _keys.TryRemove(key, out _);
             }
+            Debug.WriteLine($"[ThumbnailCacheService] Cache cleared");
         }
 
         public void Dispose()
         {
             if (_disposed) return;
-            _cache.Dispose();
+            Clear();
+            _cache?.Dispose();
             _disposed = true;
         }
     }
