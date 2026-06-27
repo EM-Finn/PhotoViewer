@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using PhotoViewer.Core.Models;
@@ -23,12 +23,9 @@ public partial class MainViewModel : ObservableObject
     private readonly SearchService _searchService;
 
     private CancellationTokenSource _loadCts;
-    private ImageSource _currentPhotoImageSource;
-    public ImageSource CurrentPhotoImageSource
-    {
-        get => _currentPhotoImageSource;
-        set { _currentPhotoImageSource = value; /* OnPropertyChanged */ }
-    }
+
+    [ObservableProperty]
+    private ImageSource currentPhotoImageSource;
 
     public MainViewModel(PhotoIndexingService indexingService, NavigationService navigationService, AppStateService state, SearchService searchService)
     {
@@ -133,13 +130,13 @@ public partial class MainViewModel : ObservableObject
 
             if (ct.IsCancellationRequested) return;
 
-            Debug.WriteLine($"[MainViewModel] Photo loaded successfully");
+            Debug.WriteLine($"[MainViewModel] Photo loaded successfully, size: {bitmap.PixelWidth}x{bitmap.PixelHeight}");
             CurrentPhotoImageSource = bitmap;
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[MainViewModel] Error loading photo: {ex.Message}");
+            Debug.WriteLine($"[MainViewModel] Error loading photo: {ex.Message}\n{ex.StackTrace}");
         }
     }
 
@@ -147,7 +144,6 @@ public partial class MainViewModel : ObservableObject
     {
         _loadCts?.Cancel();
         _loadCts?.Dispose();
-        // отписать все события и очистить кэш, если VM владеет им
     }
 
     [RelayCommand]
