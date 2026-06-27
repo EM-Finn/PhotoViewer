@@ -32,11 +32,4 @@
     <ProjectReference Include="..\PhotoViewer.FaceRecognition\PhotoViewer.FaceRecognition.csproj" />
     <ProjectReference Include="..\PhotoViewer.Services\PhotoViewer.Services.csproj" />
   </ItemGroup>
-
-	<PropertyGroup>
-		<OutputType>WinExe</OutputType>
-		<TargetFramework>net6.0-windows</TargetFramework>
-		<!-- или net7.0-windows / netcoreapp3.1-windows, в зависимости от вашей целевой платформы -->
-		<UseWPF>true</UseWPF>
-	</PropertyGroup>
 </Project>

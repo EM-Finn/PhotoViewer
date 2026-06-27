@@ -1,11 +1,13 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PhotoViewer.Services.Indexing;
+
+using PhotoViewer.UI.Caching;
 using PhotoViewer.UI.ViewModels;
 using PhotoViewer.UI.Views;
-using System.Windows;
+
+using PhotoViewer.Services.Indexing;
 using PhotoViewer.Services.Navigation;
-using PhotoViewer.Services.Caching;
 using PhotoViewer.Services.Search;
 using PhotoViewer.Services.State;
 
