@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Windows.Media.Imaging;
 using System.Diagnostics;
@@ -41,6 +41,8 @@ namespace PhotoViewer.UI.Helpers
             catch (Exception ex)
             {
                 Debug.WriteLine($"[ImageHelper] ✗ Error loading bitmap: {ex.Message}");
+                Debug.WriteLine($"[ImageHelper] Stack trace: {ex.StackTrace}");
+                Debug.WriteLine($"[ImageHelper] Inner exception: {ex.InnerException?.Message}");
                 throw;
             }
         }
